@@ -1,0 +1,38 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -e '.[dev]'
+      - run: ruff check .
+      - run: pytest -q
+      - run: python -m build
+      - name: Check packaged playground
+        run: python -c "import glob,zipfile; w=zipfile.ZipFile(glob.glob('dist/*.whl')[0]); assert 'beast_scraper/static/index.html' in w.namelist()"
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t beast-scraper .
+      - run: docker run -d --name beast-scraper -p 8000:8000 beast-scraper
+      - name: Check container health
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail http://localhost:8000/health; then exit 0; fi
+            sleep 2
+          done
+          docker logs beast-scraper
+          exit 1

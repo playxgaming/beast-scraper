@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>BeastScraper API Playground</title>
+  <style>
+    :root {
+      --bg-light: #f6f8fb;
+      --bg-dark: #0d1117;
+      --surface-light: #ffffff;
+      --surface-dark: #161b22;
+      --border-light: #d0d7de;
+      --border-dark: #30363d;
+      --text-light: #1f2328;
+      --text-dark: #e6edf3;
+      --muted-light: #57606a;
+      --muted-dark: #8b949e;
+      --accent-light: #0969da;
+      --accent-dark: #58a6ff;
+      --accent-text-light: #ffffff;
+      --accent-text-dark: #061325;
+
+      --bg: var(--bg-light);
+      --surface: var(--surface-light);
+      --border: var(--border-light);
+      --text: var(--text-light);
+      --muted: var(--muted-light);
+      --accent: var(--accent-light);
+      --accent-text: var(--accent-text-light);
+
+      color-scheme: light dark;
+      accent-color: var(--accent);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: var(--bg-dark);
+        --surface: var(--surface-dark);
+        --border: var(--border-dark);
+        --text: var(--text-dark);
+        --muted: var(--muted-dark);
+        --accent: var(--accent-dark);
+        --accent-text: var(--accent-text-dark);
+      }
+    }
+
+    @supports (color: light-dark(white, black)) {
+      :root {
+        --bg: light-dark(var(--bg-light), var(--bg-dark));
+        --surface: light-dark(var(--surface-light), var(--surface-dark));
+        --border: light-dark(var(--border-light), var(--border-dark));
+        --text: light-dark(var(--text-light), var(--text-dark));
+        --muted: light-dark(var(--muted-light), var(--muted-dark));
+        --accent: light-dark(var(--accent-light), var(--accent-dark));
+        --accent-text: light-dark(var(--accent-text-light), var(--accent-text-dark));
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      line-height: 1.5;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      margin-block-end: 1.25rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0.25rem 0 0;
+      font-size: 0.95rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+
+    .tablist {
+      display: flex;
+      overflow-x: auto;
+      border-block-end: 1px solid var(--border);
+      margin-block-end: 1.25rem;
+      gap: 0.25rem;
+    }
+
+    [role="tab"] {
+      position: relative;
+      flex: none;
+      background: transparent;
+      color: var(--muted);
+      border: 0;
+      padding: 0.75rem 1rem;
+      min-height: 48px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    [role="tab"][aria-selected="true"] {
+      color: var(--accent);
+    }
+
+    [role="tab"][aria-selected="true"]::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      border-block-end: 3px solid var(--accent);
+    }
+
+    [role="tab"]:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .panel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.35rem;
+      margin-block-end: 1rem;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="search"],
+    select {
+      font: inherit;
+      font-size: max(1rem, 1em);
+      min-height: 48px;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.5rem;
+      margin-block-end: 1rem;
+    }
+
+    .check-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 48px;
+    }
+
+    .check-item label {
+      font-weight: 500;
+    }
+
+    button[type="submit"] {
+      font: inherit;
+      font-weight: 600;
+      min-height: 48px;
+      padding: 0.65rem 1.25rem;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--accent-text);
+      cursor: pointer;
+    }
+
+    button[type="submit"]:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .status-bar {
+      margin-block-start: 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    pre {
+      color-scheme: dark;
+      background: #0d1117;
+      color: #e6edf3;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-block-start: 0.75rem;
+      overflow-x: auto;
+      max-height: 520px;
+      font-size: 0.875rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <div>
+        <h1>BeastScraper API</h1>
+        <p class="subtitle">Self-hosted Web, Site Crawl, Search, Research Papers, and YouTube scraping</p>
+      </div>
+      <nav class="nav-links" aria-label="API resources">
+        <a href="/docs">OpenAPI Docs</a>
+        <a href="/health">Health JSON</a>
+        <a href="/admin/proxies">Proxy Pool</a>
+      </nav>
+    </header>
+
+    <div class="field">
+      <label for="global-api-key">Optional API Key (only needed if <code>API_KEY</code> is set in <code>.env</code>)</label>
+      <input type="text" id="global-api-key" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="Leave blank in local mode">
+    </div>
+
+    <div class="tabs">
+      <div class="tablist" role="tablist" aria-label="Scraper tools">
+        <button type="button" role="tab" id="tab-web" aria-selected="true">Web Scrape</button>
+        <button type="button" role="tab" id="tab-crawl" aria-selected="false">Site Crawl</button>
+        <button type="button" role="tab" id="tab-search" aria-selected="false">Web Search</button>
+        <button type="button" role="tab" id="tab-papers" aria-selected="false">Research Papers</button>
+        <button type="button" role="tab" id="tab-youtube" aria-selected="false">YouTube</button>
+      </div>
+
+      <div role="tabpanel" aria-labelledby="tab-web" tabindex="0">
+        <div class="panel-card">
+          <form id="form-web">
+            <div class="field">
+              <label for="web-url">Target URL</label>
+              <input type="url" id="web-url" name="url" required autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="https://example.com">
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="web-format">Output format</label>
+                <select id="web-format" name="format">
+                  <option value="markdown">Markdown</option>
+                  <option value="json">Structured JSON</option>
+                  <option value="text">Plain Text</option>
+                  <option value="html">Raw HTML</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="web-engine">Engine</label>
+                <select id="web-engine" name="engine">
+                  <option value="auto">Auto (HTTP -> Playwright)</option>
+                  <option value="http">HTTP only (curl_cffi)</option>
+                  <option value="playwright">Playwright Browser</option>
+                  <option value="crawl4ai">Crawl4AI (if installed)</option>
+                  <option value="scrapling">Scrapling (if installed)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="web-country">Proxy Country (optional)</label>
+                <input type="text" id="web-country" name="country" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="us, in, gb">
+              </div>
+            </div>
+            <div class="checks">
+              <div class="check-item">
+                <input type="checkbox" id="web-dynamic" name="dynamic">
+                <label for="web-dynamic">Force dynamic JS rendering</label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="web-links" name="extract_links">
+                <label for="web-links">Extract links</label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="web-bypass" name="bypass_cache">
+                <label for="web-bypass">Bypass cache</label>
+              </div>
+            </div>
+            <button type="submit">Scrape URL</button>
+          </form>
+        </div>
+      </div>
+
+      <div role="tabpanel" aria-labelledby="tab-crawl" hidden>
+        <div class="panel-card">
+          <form id="form-crawl">
+            <div class="field">
+              <label for="crawl-url">Seed URL</label>
+              <input type="url" id="crawl-url" name="url" required autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="https://docs.python.org/3/whatsnew/3.13.html">
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="crawl-pages">Max pages</label>
+                <input type="text" id="crawl-pages" name="max_pages" inputmode="numeric" value="5">
+              </div>
+              <div class="field">
+                <label for="crawl-depth">Max depth</label>
+                <input type="text" id="crawl-depth" name="max_depth" inputmode="numeric" value="1">
+              </div>
+            </div>
+            <button type="submit">Start Crawl</button>
+          </form>
+        </div>
+      </div>
+
+      <div role="tabpanel" aria-labelledby="tab-search" hidden>
+        <div class="panel-card">
+          <search>
+            <form id="form-search">
+              <div class="field">
+                <label for="search-query">Search query</label>
+                <input type="search" id="search-query" name="query" required autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="open source web scrapers python">
+              </div>
+              <div class="row">
+                <div class="field">
+                  <label for="search-results">Result count</label>
+                  <input type="text" id="search-results" name="results" inputmode="numeric" value="10">
+                </div>
+                <div class="field">
+                  <label for="search-type">Type</label>
+                  <select id="search-type" name="search_type">
+                    <option value="web">Web</option>
+                    <option value="news">News</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit">Search Web</button>
+            </form>
+          </search>
+        </div>
+      </div>
+
+      <div role="tabpanel" aria-labelledby="tab-papers" hidden>
+        <div class="panel-card">
+          <form id="form-papers">
+            <div class="row">
+              <div class="field">
+                <label for="papers-mode">Action</label>
+                <select id="papers-mode" name="mode">
+                  <option value="search">Search OpenAlex + arXiv + S2</option>
+                  <option value="parse">Parse PDF to Markdown (arXiv ID / DOI / PDF URL)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="papers-query">Query or Paper Identifier</label>
+                <input type="text" id="papers-query" name="q" required autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="retrieval augmented generation OR 1706.03762">
+              </div>
+            </div>
+            <button type="submit">Run Papers Request</button>
+          </form>
+        </div>
+      </div>
+
+      <div role="tabpanel" aria-labelledby="tab-youtube" hidden>
+        <div class="panel-card">
+          <form id="form-youtube">
+            <div class="row">
+              <div class="field">
+                <label for="yt-mode">Action</label>
+                <select id="yt-mode" name="mode">
+                  <option value="transcript">Get Transcript</option>
+                  <option value="info">Get Video / Playlist Info</option>
+                  <option value="search">Search YouTube</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="yt-input">YouTube URL, Video ID, or Search Query</label>
+                <input type="text" id="yt-input" name="input" required autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+              </div>
+              <div class="field">
+                <label for="yt-format">Transcript Format</label>
+                <select id="yt-format" name="format">
+                  <option value="markdown">Markdown</option>
+                  <option value="json">JSON Segments</option>
+                  <option value="text">Plain Text</option>
+                  <option value="srt">SRT Subtitles</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit">Fetch YouTube Data</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar" id="status-bar" role="status" aria-live="polite">Ready.</div>
+    <pre id="output">Run any request above to inspect the JSON response.</pre>
+  </main>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+    const panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+    const statusBar = document.getElementById('status-bar');
+    const output = document.getElementById('output');
+
+    function selectTab(targetTab) {
+      tabs.forEach((tab, idx) => {
+        const selected = tab === targetTab;
+        tab.setAttribute('aria-selected', String(selected));
+        panels[idx].hidden = !selected;
+        if (selected) {
+          panels[idx].setAttribute('tabindex', '0');
+        } else {
+          panels[idx].removeAttribute('tabindex');
+        }
+      });
+    }
+
+    tabs.forEach((tab, idx) => {
+      tab.addEventListener('click', () => selectTab(tab));
+      tab.addEventListener('keydown', (e) => {
+        let next = null;
+        if (e.key === 'ArrowRight') next = tabs[(idx + 1) % tabs.length];
+        if (e.key === 'ArrowLeft') next = tabs[(idx - 1 + tabs.length) % tabs.length];
+        if (next) {
+          selectTab(next);
+          next.focus();
+        }
+      });
+    });
+
+    async function runRequest(form, url, options = {}) {
+      const btn = form.querySelector('button[type="submit"]');
+      const apiKey = document.getElementById('global-api-key').value.trim();
+      const headers = new Headers(options.headers || {});
+      if (apiKey) headers.set('X-API-Key', apiKey);
+
+      btn.disabled = true;
+      statusBar.textContent = 'Running request...';
+      const t0 = performance.now();
+      try {
+        const res = await fetch(url, { ...options, headers });
+        const text = await res.text();
+        let formatted = text;
+        try { formatted = JSON.stringify(JSON.parse(text), null, 2); } catch {}
+        output.textContent = formatted;
+        const ms = Math.round(performance.now() - t0);
+        statusBar.textContent = `HTTP ${res.status} (${ms} ms)`;
+      } catch (err) {
+        statusBar.textContent = 'Request error.';
+        output.textContent = String(err);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById('form-web').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const params = new URLSearchParams({
+        url: fd.get('url'),
+        format: fd.get('format'),
+        engine: fd.get('engine'),
+        dynamic: String(Boolean(fd.get('dynamic'))),
+        extract_links: String(Boolean(fd.get('extract_links'))),
+        bypass_cache: String(Boolean(fd.get('bypass_cache'))),
+      });
+      if (fd.get('country')) params.set('country', fd.get('country'));
+      runRequest(e.target, `/scrape?${params}`);
+    });
+
+    document.getElementById('form-crawl').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      runRequest(e.target, '/crawl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: fd.get('url'),
+          max_pages: Number(fd.get('max_pages') || 5),
+          max_depth: Number(fd.get('max_depth') || 1),
+        }),
+      });
+    });
+
+    document.getElementById('form-search').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const params = new URLSearchParams({
+        query: fd.get('query'),
+        results: fd.get('results') || '10',
+        search_type: fd.get('search_type') || 'web',
+      });
+      runRequest(e.target, `/search?${params}`);
+    });
+
+    document.getElementById('form-papers').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const mode = fd.get('mode');
+      const q = fd.get('q');
+      const url = mode === 'parse'
+        ? `/papers/parse?${new URLSearchParams({ identifier: q, max_pages: '5' })}`
+        : `/papers/search?${new URLSearchParams({ query: q, limit: '10' })}`;
+      runRequest(e.target, url);
+    });
+
+    document.getElementById('form-youtube').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const mode = fd.get('mode');
+      const input = fd.get('input');
+      let url = '';
+      if (mode === 'info') url = `/youtube/info?${new URLSearchParams({ url: input })}`;
+      else if (mode === 'search') url = `/youtube/search?${new URLSearchParams({ query: input })}`;
+      else url = `/youtube/transcript?${new URLSearchParams({ url: input, format: fd.get('format') })}`;
+      runRequest(e.target, url);
+    });
+  </script>
+</body>
+</html>

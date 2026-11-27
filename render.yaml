@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: beast-scraper
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /health
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: "10000"
+      - key: PUBLIC_MODE
+        value: "true"
+      - key: ALLOW_PRIVATE_URLS
+        value: "false"
+      - key: BROWSER_ENABLED
+        value: "false"
+      - key: ADMIN_API_KEY
+        generateValue: true
+      - key: CACHE_DB_PATH
+        value: /app/data/cache.db
+      - key: MAX_CONCURRENT_REQUESTS
+        value: "1"
+      - key: API_REQUESTS_PER_MINUTE
+        value: "20"
+      - key: MAX_CRAWL_PAGES
+        value: "5"
+      - key: PDF_MAX_MB
+        value: "10"
