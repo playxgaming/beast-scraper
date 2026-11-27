@@ -36,3 +36,19 @@ jobs:
           done
           docker logs beast-scraper
           exit 1
+      - name: Check browser runtime
+        run: |
+          docker exec -i beast-scraper python - <<'PY'
+          import asyncio
+          from playwright.async_api import async_playwright
+
+          async def main():
+              async with async_playwright() as playwright:
+                  browser = await playwright.chromium.launch()
+                  page = await browser.new_page()
+                  await page.set_content('<h1>Browser works</h1>')
+                  assert await page.locator('h1').inner_text() == 'Browser works'
+                  await browser.close()
+
+          asyncio.run(main())
+          PY
