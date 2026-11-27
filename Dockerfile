@@ -7,11 +7,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PLAYWRIGHT_BROWSERS_PATH=/ms-pl
 COPY pyproject.toml README.md LICENSE ./
 COPY beast_scraper ./beast_scraper
 
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN apt-get update && apt-get install -y --no-install-recommends libatomic1 && \
+    pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir . && \
     playwright install --with-deps chromium && \
     useradd --create-home --uid 1000 app && \
-    mkdir -p /app/data && chown -R app:app /app /ms-playwright
+    mkdir -p /app/data && chown -R app:app /app /ms-playwright && \
+    rm -rf /var/lib/apt/lists/*
 
 USER app
 

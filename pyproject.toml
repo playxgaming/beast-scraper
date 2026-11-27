@@ -22,7 +22,7 @@ dependencies = [
     "beautifulsoup4>=4.12.3",
     "lxml>=5.3.0",
     "markdownify>=0.13.1",
-    "pymupdf>=1.24.10",
+    "pymupdf>=1.24.10,<2",
     "yt-dlp>=2024.10.0",
     "youtube-transcript-api>=1.0.0",
     "ddgs>=8.0.0",
@@ -31,7 +31,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-pdf = ["pymupdf4llm>=0.0.17"]
+pdf = ["pymupdf4llm>=0.0.17,<1"]
 pro = [
     "crawl4ai>=0.4.0",
     "scrapling[fetchers]>=0.2.9",
